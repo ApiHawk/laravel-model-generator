@@ -175,19 +175,20 @@ class Model
      * @param \Reliese\Coders\Model\Mutator[] $mutators
      * @param bool $loadRelations
      */
-    public function __construct(Blueprint $blueprint, Factory $factory, $mutators = [], $loadRelations = true)
+    public function __construct(Blueprint $blueprint, Factory $factory, $mutators = [], $loadRelations = true, $namespace = null)
     {
         $this->blueprint = $blueprint;
         $this->factory = $factory;
         $this->loadRelations = $loadRelations;
         $this->mutators = $mutators;
+        $this->namespace = $namespace;
         $this->configure();
         $this->fill();
     }
 
     protected function configure()
     {
-        $this->withNamespace($this->config('namespace'));
+        $this->withNamespace($this->namespace ?: $this->config('namespace'));
         $this->withParentClass($this->config('parent'));
 
         // Timestamps settings

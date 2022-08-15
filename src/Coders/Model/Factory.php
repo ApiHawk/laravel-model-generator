@@ -51,6 +51,9 @@ class Factory
      */
     protected $mutators = [];
 
+    protected $namespace;
+    protected $path;
+
     /**
      * ModelsFactory constructor.
      *
@@ -94,9 +97,11 @@ class Factory
      *
      * @return $this
      */
-    public function on($connection = null)
+    public function on($connection = null, $namespace, $path)
     {
         $this->schemas = new SchemaManager($this->db->connection($connection));
+        $this->namespace = $namespace;
+        $this->path = $path;
 
         return $this;
     }
@@ -159,9 +164,9 @@ class Factory
      * @param string $schema
      * @param string $table
      */
-    public function create($schema, $table)
+    public function create($schema, $table, $namespace, $path)
     {
-        $model = $this->makeModel($schema, $table);
+        $model = $this->makeModel($schema, $table, $namespace);
         $template = $this->prepareTemplate($model, 'model');
 
         $file = $this->fillTemplate($template, $model);
@@ -185,9 +190,9 @@ class Factory
      *
      * @return \Reliese\Coders\Model\Model
      */
-    public function makeModel($schema, $table, $withRelations = true)
+    public function makeModel($schema, $table, $namespace, $withRelations = true)
     {
-        return $this->models()->make($schema, $table, $this->mutators, $withRelations);
+        return $this->models()->make($schema, $table, $this->mutators, $withRelations, $namespace);
     }
 
     /**
@@ -504,7 +509,7 @@ class Factory
      */
     protected function modelPath(Model $model, $custom = [])
     {
-        $modelsDirectory = $this->path(array_merge([$this->config($model->getBlueprint(), 'path')], $custom));
+        $modelsDirectory = $this->path(app_path($this->path));
 
         if (! $this->files->isDirectory($modelsDirectory)) {
             $this->files->makeDirectory($modelsDirectory, 0755, true);
@@ -543,7 +548,7 @@ class Factory
         $file = $this->modelPath($model);
 
         $template = $this->prepareTemplate($model, 'user_model');
-        $template = str_replace('{{namespace}}', $model->getNamespace(), $template);
+        $template = str_replace('{{namespace}}', $this->namespace, $template);
         $template = str_replace('{{class}}', $model->getClassName(), $template);
         $template = str_replace('{{imports}}', $this->formatBaseClasses($model), $template);
         $template = str_replace('{{parent}}', $this->getBaseClassName($model), $template);

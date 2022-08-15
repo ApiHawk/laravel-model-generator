@@ -16,7 +16,9 @@ class CodeModelsCommand extends Command
     protected $signature = 'code:models
                             {--s|schema= : The name of the MySQL database}
                             {--c|connection= : The name of the connection}
-                            {--t|table= : The name of the table}';
+                            {--t|table= : The name of the table}
+                            {--p|path= : The path of the container}
+                            {--namespace= : The namespace of the container}';
 
     /**
      * The console command description.
@@ -57,10 +59,12 @@ class CodeModelsCommand extends Command
         $connection = $this->getConnection();
         $schema = $this->getSchema($connection);
         $table = $this->getTable();
+        $namespace = $this->getNamespace();
+        $path = $this->getPath();
 
         // Check whether we just need to generate one table
         if ($table) {
-            $this->models->on($connection)->create($schema, $table);
+            $this->models->on($connection, $namespace, $path)->create($schema, $table, $namespace, $path);
             $this->info("Check out your models for $table");
         }
 
@@ -87,6 +91,14 @@ class CodeModelsCommand extends Command
     protected function getSchema($connection)
     {
         return $this->option('schema') ?: $this->config->get("database.connections.$connection.database");
+    }
+
+    protected function getNamespace() {
+        return $this->option('namespace') ?: $this->config->get('namespace');
+    }
+
+    protected function getPath() {
+        return $this->option('path') ?: $this->config->get('path');
     }
 
     /**
