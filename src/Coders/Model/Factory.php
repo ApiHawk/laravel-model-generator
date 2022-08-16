@@ -97,9 +97,9 @@ class Factory
      *
      * @return $this
      */
-    public function on($connection = null, $namespace, $path)
+    public function on($connection = null, string $schema, string $namespace, string $path)
     {
-        $this->schemas = new SchemaManager($this->db->connection($connection));
+        $this->schemas = new SchemaManager($this->db->connection($connection), $schema);
         $this->namespace = $namespace;
         $this->path = $path;
 

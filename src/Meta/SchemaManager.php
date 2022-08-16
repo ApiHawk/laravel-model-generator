@@ -36,6 +36,11 @@ class SchemaManager implements IteratorAggregate
     private $connection;
 
     /**
+     * @var string
+     */
+    private $databaseName;
+
+    /**
      * @var \Reliese\Meta\Schema[]
      */
     protected $schemas = [];
@@ -45,9 +50,10 @@ class SchemaManager implements IteratorAggregate
      *
      * @param \Illuminate\Database\ConnectionInterface $connection
      */
-    public function __construct(ConnectionInterface $connection)
+    public function __construct(ConnectionInterface $connection, string $databaseName = '')
     {
         $this->connection = $connection;
+        $this->databaseName = $databaseName;
 
         $this->boot();
     }
@@ -63,9 +69,16 @@ class SchemaManager implements IteratorAggregate
 
         $schemas = forward_static_call([$this->getMapper(), 'schemas'], $this->connection);
 
-        foreach ($schemas as $schema) {
-            $this->make($schema);
+        if(in_array($this->databaseName, $schemas)) {
+          $this->make($this->databaseName);
+        } else {
+          foreach ($schemas as $schema) {
+              echo 'making schema ' . $schema . PHP_EOL;
+              $this->make($schema);
+          }
         }
+
+        exit();
     }
 
     /**
