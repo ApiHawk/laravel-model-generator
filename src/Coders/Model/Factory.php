@@ -97,13 +97,16 @@ class Factory
      *
      * @return $this
      */
-    public function on($connection = null, string $schema, string $namespace, string $path)
+    public function on($connection = null, $schema, $table = null, $namespace = null, $path = null)
     {
-        $this->schemas = new SchemaManager($this->db->connection($connection), $schema);
+        $this->schemas = new SchemaManager($this->db->connection($connection), $schema, $table);
         $this->namespace = $namespace;
         $this->path = $path;
-
         return $this;
+    }
+
+    public function fetchTables($schema) {
+        return $this->schemas->fetchTables($schema);
     }
 
     /**
@@ -164,9 +167,9 @@ class Factory
      * @param string $schema
      * @param string $table
      */
-    public function create($schema, $table, $namespace, $path)
+    public function create($name, $schema, $table, $namespace, $path)
     {
-        $model = $this->makeModel($schema, $table, $namespace);
+        $model = $this->makeModel($name, $schema, $table, $namespace);
         $template = $this->prepareTemplate($model, 'model');
 
         $file = $this->fillTemplate($template, $model);
@@ -190,9 +193,9 @@ class Factory
      *
      * @return \Reliese\Coders\Model\Model
      */
-    public function makeModel($schema, $table, $namespace, $withRelations = true)
+    public function makeModel($name, $schema, $table, $namespace, $withRelations = true)
     {
-        return $this->models()->make($schema, $table, $this->mutators, $withRelations, $namespace);
+        return $this->models()->make($name, $schema, $table, $this->mutators, $withRelations, $namespace);
     }
 
     /**

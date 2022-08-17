@@ -39,12 +39,14 @@ class Schema implements \Reliese\Meta\Schema
      * @param string $schema
      * @param \Illuminate\Database\MySqlConnection $connection
      */
-    public function __construct($schema, $connection)
+    public function __construct($schema, $connection, $table = null)
     {
         $this->schema = $schema;
         $this->connection = $connection;
 
-        $this->load();
+        if($table != null) {
+            $this->load($table);
+        }
     }
 
     /**
@@ -59,13 +61,13 @@ class Schema implements \Reliese\Meta\Schema
     /**
      * Loads schema's tables' information from the database.
      */
-    protected function load()
+    protected function load($table)
     {
-        $tables = $this->fetchTables($this->schema);
+        $tables = $this->fetchTables($this->schema, $table);
         foreach ($tables as $table) {
             $this->loadTable($table);
         }
-        $views = $this->fetchViews($this->schema);
+        $views = $this->fetchViews($this->schema, $table);
         foreach ($views as $table) {
             $this->loadTable($table, true);
         }
@@ -76,9 +78,15 @@ class Schema implements \Reliese\Meta\Schema
      *
      * @return array
      */
-    protected function fetchTables($schema)
+    public function fetchTables($schema, $table = null)
     {
-        $rows = $this->arraify($this->connection->select('SHOW FULL TABLES FROM '.$this->wrap($schema).' WHERE Table_type="BASE TABLE"'));
+        $query = 'SHOW FULL TABLES FROM '.$this->wrap($schema).' WHERE Table_type="BASE TABLE"';
+
+        if($table != null) {
+            $query .= ' AND Tables_in_'.$schema.' = "'. $table .'"';
+        }
+
+        $rows = $this->arraify($this->connection->select($query));
         $names = array_column($rows, 'Tables_in_'.$schema);
 
         return Arr::flatten($names);
@@ -89,9 +97,15 @@ class Schema implements \Reliese\Meta\Schema
      *
      * @return array
      */
-    protected function fetchViews($schema)
+    protected function fetchViews($schema, $table = null)
     {
-        $rows = $this->arraify($this->connection->select('SHOW FULL TABLES FROM '.$this->wrap($schema).' WHERE Table_type="VIEW"'));
+        $query = 'SHOW FULL TABLES FROM '.$this->wrap($schema).' WHERE Table_type="VIEW"';
+
+        if($table !== null) {
+            $query .= ' AND Tables_in_'.$schema.' = "'. $table .'"';
+        }
+
+        $rows = $this->arraify($this->connection->select($query));
         $names = array_column($rows, 'Tables_in_'.$schema);
 
         return Arr::flatten($names);

@@ -35,10 +35,9 @@ class SchemaManager implements IteratorAggregate
      */
     private $connection;
 
-    /**
-     * @var string
-     */
-    private $databaseName;
+    private $database;
+
+    private $table;
 
     /**
      * @var \Reliese\Meta\Schema[]
@@ -50,10 +49,11 @@ class SchemaManager implements IteratorAggregate
      *
      * @param \Illuminate\Database\ConnectionInterface $connection
      */
-    public function __construct(ConnectionInterface $connection, string $databaseName = '')
+    public function __construct(ConnectionInterface $connection, string $database = '', $table = null)
     {
         $this->connection = $connection;
-        $this->databaseName = $databaseName;
+        $this->database = $database;
+        $this->table = $table;
 
         $this->boot();
     }
@@ -69,16 +69,18 @@ class SchemaManager implements IteratorAggregate
 
         $schemas = forward_static_call([$this->getMapper(), 'schemas'], $this->connection);
 
-        if(in_array($this->databaseName, $schemas)) {
-          $this->make($this->databaseName);
+        if(in_array($this->database, $schemas)) {
+            $test = $this->make($this->database);
         } else {
-          foreach ($schemas as $schema) {
-              echo 'making schema ' . $schema . PHP_EOL;
-              $this->make($schema);
-          }
+            foreach ($schemas as $schema) {
+                $this->make($schema);
+            }
         }
-
-        exit();
+    }
+    
+    public function fetchTables($schema) {
+        $model = $this->makeMapper($schema);
+        return $model->fetchTables($schema);
     }
 
     /**
@@ -104,7 +106,7 @@ class SchemaManager implements IteratorAggregate
     {
         $mapper = $this->getMapper();
 
-        return new $mapper($schema, $this->connection);
+        return new $mapper($schema, $this->connection, $this->table);
     }
 
     /**

@@ -14,6 +14,7 @@ class CodeModelsCommand extends Command
      * @var string
      */
     protected $signature = 'code:models
+                            {--name= : The name of the created model}
                             {--s|schema= : The name of the MySQL database}
                             {--c|connection= : The name of the connection}
                             {--t|table= : The name of the table}
@@ -56,6 +57,7 @@ class CodeModelsCommand extends Command
      */
     public function handle()
     {
+        $name = $this->getModelName();
         $connection = $this->getConnection();
         $schema = $this->getSchema($connection);
         $table = $this->getTable();
@@ -64,15 +66,20 @@ class CodeModelsCommand extends Command
 
         // Check whether we just need to generate one table
         if ($table) {
-            $this->models->on($connection, $schema, $namespace, $path)->create($schema, $table, $namespace, $path);
+            $this->models->on($connection, $schema, $table, $namespace, $path)->create($name, $schema, $table, $namespace, $path);
             $this->info("Check out your models for $table");
         }
 
         // Otherwise map the whole database
         else {
-            $this->models->on($connection, $schema)->map($schema);
+            $this->models->on($connection)->map($schema);
             $this->info("Check out your models for $schema");
         }
+    }
+
+    protected function getModelName()
+    {
+        return $this->option('name') ?: $this->config->get('defaultName');
     }
 
     /**

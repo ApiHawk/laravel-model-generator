@@ -167,6 +167,8 @@ class Model
      */
     protected $definesReturnTypes = false;
 
+    protected $modelName;
+
     /**
      * ModelClass constructor.
      *
@@ -175,8 +177,9 @@ class Model
      * @param \Reliese\Coders\Model\Mutator[] $mutators
      * @param bool $loadRelations
      */
-    public function __construct(Blueprint $blueprint, Factory $factory, $mutators = [], $loadRelations = true, $namespace = null)
+    public function __construct(string $name, Blueprint $blueprint, Factory $factory, $mutators = [], $loadRelations = true, $namespace = null)
     {
+        $this->modelName = $name;
         $this->blueprint = $blueprint;
         $this->factory = $factory;
         $this->loadRelations = $loadRelations;
@@ -531,7 +534,7 @@ class Model
     {
         // Model names can be manually overridden by users in the config file.
         // If a config entry exists for this table, use that name, rather than generating one.
-        $overriddenName = $this->config('model_names.' . $this->getTable());
+        $overriddenName = $this->modelName ?: false;
         if ($overriddenName) {
             return $overriddenName;
         }
