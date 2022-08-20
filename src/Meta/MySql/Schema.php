@@ -83,7 +83,7 @@ class Schema implements \Reliese\Meta\Schema
         $query = 'SHOW FULL TABLES FROM '.$this->wrap($schema).' WHERE Table_type="BASE TABLE"';
 
         if($table != null) {
-            $query .= ' AND Tables_in_'.$schema.' = "'. $table .'"';
+            $query .= ' AND `Tables_in_'.$schema.'` = "'. $table .'"';
         }
 
         $rows = $this->arraify($this->connection->select($query));
@@ -102,7 +102,7 @@ class Schema implements \Reliese\Meta\Schema
         $query = 'SHOW FULL TABLES FROM '.$this->wrap($schema).' WHERE Table_type="VIEW"';
 
         if($table !== null) {
-            $query .= ' AND Tables_in_'.$schema.' = "'. $table .'"';
+            $query .= ' AND `Tables_in_'.$schema.'` = "'. $table .'"';
         }
 
         $rows = $this->arraify($this->connection->select($query));
