@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Reliese\Coders\Model\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Reliese\Coders\Model\Relations\ReferenceFactory;
+use Tenancy\Affects\Connections\Support\Traits\OnTenant;
 
 class Model
 {
@@ -339,7 +340,7 @@ class Model
             return $this;
         }
 
-        return $this->factory->makeModel($database, $table, false);
+        return $this->factory->makeModel($this->modelName, $database, $table, $this->getNamespace(), false);
     }
 
     /**
@@ -718,6 +719,10 @@ class Model
     public function getTraits()
     {
         $traits = $this->config('use', []);
+
+        if(strpos($this->getNamespace(), 'Tenant')) {
+            $traits = array_merge([OnTenant::class], $traits);
+        }
 
         if (! is_array($traits)) {
             throw new \RuntimeException('Config use must be an array of valid traits to append to each model.');
