@@ -63,7 +63,7 @@ class Schema implements \Reliese\Meta\Schema
      */
     protected function load($table)
     {
-        $tables = $this->fetchTables($this->schema, $table);
+        $tables = $this->fetchTables($this->schema);
         foreach ($tables as $table) {
             $this->loadTable($table);
         }
