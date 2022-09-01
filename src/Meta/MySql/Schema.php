@@ -44,9 +44,7 @@ class Schema implements \Reliese\Meta\Schema
         $this->schema = $schema;
         $this->connection = $connection;
 
-        if($table != null) {
-            $this->load($table);
-        }
+        $this->load();
     }
 
     /**
@@ -61,7 +59,7 @@ class Schema implements \Reliese\Meta\Schema
     /**
      * Loads schema's tables' information from the database.
      */
-    protected function load($table)
+    protected function load($table = null)
     {
         $tables = $this->fetchTables($this->schema);
         foreach ($tables as $table) {

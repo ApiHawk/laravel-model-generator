@@ -227,9 +227,10 @@ class Factory
         // TODO: ModelManager should do this
         foreach ($references as &$related) {
             $blueprint = $related['blueprint'];
+            $modelName = ucfirst(Str::camel($blueprint->table()));
             $related['model'] = $model->getBlueprint()->is($blueprint->schema(), $blueprint->table())
                 ? $model
-                : $this->makeModel($blueprint->schema(), $blueprint->table(), false);
+                : $this->makeModel($modelName, $blueprint->schema(), $blueprint->table(), false);
         }
 
         return $references;

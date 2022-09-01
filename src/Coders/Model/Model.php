@@ -340,7 +340,9 @@ class Model
             return $this;
         }
 
-        return $this->factory->makeModel($this->modelName, $database, $table, $this->getNamespace(), false);
+        $modelName = ucfirst(Str::camel($table));
+
+        return $this->factory->makeModel($modelName, $database, $table, $this->getNamespace(), false);
     }
 
     /**
